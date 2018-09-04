@@ -21,7 +21,7 @@ and import the Paynow class into your project
 ```python
 	from paynowzw-sdk import Paynow
 
-	// Do stuff
+	# Do stuff
 ```
 ---
 
@@ -33,8 +33,8 @@ Create an instance of the Paynow class optionally setting the result and return 
 paynow = Paynow(
 	'INTEGRATION_ID', 
 	'INTEGRATION_KEY',
-	'http://google.com', 
-	'http://google.com'
+	'http:#google.com', 
+	'http:#google.com'
 	)
 ```
 
@@ -48,7 +48,7 @@ payment = paynow.create_payment('Order #100', 'test@example.com')
 You can then start adding items to the payment
 
 ```python
-// Passing in the name of the item and the price of the item
+# Passing in the name of the item and the price of the item
 payment.add('Bananas', 2.50)
 payment.add('Apples', 3.40)
 ```
@@ -56,7 +56,7 @@ payment.add('Apples', 3.40)
 When you're finally ready to send your payment to Paynow, you can use the `send` method in the `$paynow` object.
 
 ```python
-// Save the response from paynow in a variable
+# Save the response from paynow in a variable
 response = paynow.send(payment)
 ```
 
@@ -123,8 +123,8 @@ from paynow_py import Paynow
 paynow = Paynow(
 	'INTEGRATION_ID', 
 	'INTEGRATION_KEY',
-	'http://google.com', 
-	'http://google.com'
+	'http:#google.com', 
+	'http:#google.com'
 	)
 
 payment = paynow.create_payment('Order', 'test@example.com')
