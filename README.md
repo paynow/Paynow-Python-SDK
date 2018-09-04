@@ -6,7 +6,7 @@ Python SDK for Paynow Zimbabwe's API
 
 This library has a set of prerequisites that must be met for it to work
 
-1.  Requests 
+1.  requests 
 
 # Installation
 
@@ -53,7 +53,7 @@ payment.add('Bananas', 2.50)
 payment.add('Apples', 3.40)
 ```
 
-When you're finally ready to send your payment to Paynow, you can use the `send` method in the `$paynow` object.
+When you're finally ready to send your payment to Paynow, you can use the `send` method in the `paynow` object.
 
 ```python
 # Save the response from paynow in a variable
