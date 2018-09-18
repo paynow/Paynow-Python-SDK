@@ -6,23 +6,24 @@ Python SDK for Paynow Zimbabwe's API
 
 This library has a set of prerequisites that must be met for it to work
 
-1.  requests 
+1.  requests
 
 # Installation
 
 Install the library using pip
 
 ```sh
-$ pip install paynowzw-sdk
+$ pip install paynow
 ```
 
 and import the Paynow class into your project
 
 ```python
-	from paynowzw-sdk import Paynow
+	from paynow import Paynow
 
 	# Do stuff
 ```
+
 ---
 
 # Usage example
@@ -31,13 +32,12 @@ Create an instance of the Paynow class optionally setting the result and return 
 
 ```python
 paynow = Paynow(
-	'INTEGRATION_ID', 
+	'INTEGRATION_ID',
 	'INTEGRATION_KEY',
-	'http:#google.com', 
-	'http:#google.com'
+	'http://google.com',
+	'http://google.com'
 	)
 ```
-
 
 Create a new payment passing in the reference for that payment (e.g invoice id, or anything that you can use to identify the transaction and the user's email address
 
@@ -72,7 +72,6 @@ if response.success:
 
 	# Get the poll url (used to check the status of a transaction). You might want to save this in your DB
 	pollUrl = response.poll_url
-
 ```
 
 ---
@@ -117,13 +116,13 @@ else :
 # Full Usage Example
 
 ```python
-from paynow_py import Paynow
+from paynow import Paynow
 
 
 paynow = Paynow(
-	'INTEGRATION_ID', 
+	'INTEGRATION_ID',
 	'INTEGRATION_KEY',
-	'http:#google.com', 
+	'http:#google.com',
 	'http:#google.com'
 	)
 
@@ -144,5 +143,4 @@ if(response.success):
     time.sleep(30)
 
     print("Payment Status: ", status.status)
-
 ```

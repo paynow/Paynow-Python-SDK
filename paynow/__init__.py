@@ -5,6 +5,8 @@ from urllib.parse import quote_plus, parse_qs
 """
 Exception thrown when hash from Paynow does not match locally generated hash
 """
+
+
 class HashMismatchException(Exception):
     def __init__(self, message):
         super(HashMismatchException, self).__init__(message)
@@ -208,12 +210,12 @@ class Paynow:
 
     """
 
-    URL_INITIATE_TRANSACTION = "https://paynow.webdevworld.com/interface/initiatetransaction"
+    URL_INITIATE_TRANSACTION = "https://www.paynow.co.zw/interface/initiatetransaction"
     """
     str: Transaction initation url (constant)
     """
 
-    URL_INITIATE_MOBILE_TRANSACTION = "https://paynow.webdevworld.com/interface/remotetransaction"
+    URL_INITIATE_MOBILE_TRANSACTION = "https://www.paynow.co.zw/interface/remotetransaction"
     """
     str: Transaction initation url (constant)
     """
@@ -364,7 +366,7 @@ class Paynow:
 
         response_object = self.__rebuild_response(parse_qs(response.text))
 
-           if(str(response_object['status']).lower() == 'error'):
+        if(str(response_object['status']).lower() == 'error'):
             return InitResponse(response_object)
 
         if not self.__verify_hash(response_object, self.integration_key):
@@ -385,7 +387,6 @@ class Paynow:
         response = requests.post(poll_url, data={})
 
         response_object = self.__rebuild_response(parse_qs(response.text))
-
 
         return StatusResponse(
             response_object, False)

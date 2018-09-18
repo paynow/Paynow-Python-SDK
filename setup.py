@@ -9,13 +9,13 @@ with open(path.join(here, 'README.md'), encoding='utf-8') as f:
     long_description = f.read()
 
 setup(
-    name='paynow_py',  # Required
-    version='1.0.0',  # Required
+    name='paynow',  # Required
+    version='1.0.2',  # Required
     description='Paynow Python SDK',  # Required
     long_description=long_description,  # Optional
     long_description_content_type='text/markdown',  # Optional (see note above)
-    url='https://github.com/PaynowZW/paynow-python-sdk',  # Optional
-    author='Melvin Mupondori',  # Optional
+    url='https://gitlab.com/paynow-developer-hub/Paynow-Python-SDK',  # Optional
+    author='WebDev Projects',  # Optional
     author_email='pkg-dev@webdevworld.com',  # Optional
     classifiers=[  # Optional
         'Development Status :: 5 - Production/Stable',
@@ -34,7 +34,7 @@ setup(
         'Programming Language :: Python :: 3.5',
         'Programming Language :: Python :: 3.6',
     ],
-    keywords='paynow-api paynow-zimbabwe paynow-zimbabwe-api',  # Optional
+    keywords='paynow-api paynow-zimbabwe paynow-zimbabwe-api paynow-zimbabwe-sdk',  # Optional
     packages=find_packages(exclude=['contrib', 'docs', 'tests']),  # Required
     # This field lists other packages that your project depends on to run.
     # Any package you put here will be installed by pip when your project is
@@ -44,7 +44,7 @@ setup(
     # https://packaging.python.org/en/latest/requirements.html
     install_requires=['requests'],  # Optional
     project_urls={  # Optional
-        'Bug Reports': 'https://github.com/PaynowZW/Paynow-Python-SDK/issues',
-        'Source': 'https://github.com/PaynowZW/Paynow-Python-SDK',
+        'Bug Reports': 'https://gitlab.com/paynow-developer-hub/Paynow-Python-SDK/issues',
+        'Source': 'https://gitlab.com/paynow-developer-hub/Paynow-Python-SDK',
     },
 )
