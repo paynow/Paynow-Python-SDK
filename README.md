@@ -107,7 +107,7 @@ The SDK exposes a handy method that you can use to check the status of a transac
 # Now you see why you need to save that url ;-)
 status = paynow.check_transaction_status(poll_url)
 
-if status.paid() :
+if status.paid :
 	# Yay! Transaction was paid for. Update transaction?
 else :
 	# Handle that
