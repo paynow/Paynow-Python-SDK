@@ -304,7 +304,7 @@ class Paynow:
         """
         return self.__init_mobile(payment, phone, method)
 
-    def process_status_update(self, data):
+    def process_status_update(self, data: object) -> StatusResponse:
         """This method parses the status update data from Paynow into an easier to use format
 
         Args:
@@ -330,18 +330,25 @@ class Paynow:
         if payment.total() <= 0:
             raise ValueError('Transaction total cannot be less than 1')
 
+        # Build up the object
         data = self.__build(payment)
 
+        # Save response from Paynow
         response = requests.post(self.URL_INITIATE_TRANSACTION, data=data)
 
+        # Reconstruct the response into key-value pairs
         response_object = self.__rebuild_response(parse_qs(response.text))
 
-        if(str(response_object['status']).lower() == 'error'):
+        # If an error was encountered return a new InitResponse object without validating hash since hash is not
+        # generated for error responses
+        if str(response_object['status']).lower() == 'error':
             return InitResponse(response_object)
 
+        # Verify the hash from Paynow with the locally generated one
         if not self.__verify_hash(response_object, self.integration_key):
             raise HashMismatchException("Hashes do not match")
 
+        # Create a new InitResponse object object passing in the data from Paynow
         return InitResponse(response_object)
 
     def __init_mobile(self, payment: Payment, phone: str, method: str):
@@ -359,19 +366,30 @@ class Paynow:
         if payment.total() <= 0:
             raise ValueError('Transaction total cannot be less than 1')
 
+        if not payment.auth_email or len(payment.auth_email) <= 0:
+            raise ValueError('Auth email is required for mobile transactions. You can pass the auth email as the '
+                             'second parameter in the create_payment method call')
+
+        # Build up the object
         data = self.__build_mobile(payment, phone, method)
 
+        # Save response from Paynow
         response = requests.post(
             self.URL_INITIATE_MOBILE_TRANSACTION, data=data)
 
+        # Reconstruct the response into key-value pairs
         response_object = self.__rebuild_response(parse_qs(response.text))
 
-        if(str(response_object['status']).lower() == 'error'):
+        # If an error was encountered return a new InitResponse object without validating hash since hash is not
+        # generated for error responses
+        if str(response_object['status']).lower() == 'error':
             return InitResponse(response_object)
 
+        # Verify the hash from Paynow with the locally generated one
         if not self.__verify_hash(response_object, self.integration_key):
             raise HashMismatchException("Hashes do not match")
 
+        # Create a new InitResponse object object passing in the data from Paynow
         return InitResponse(response_object)
 
     def check_transaction_status(self, poll_url):
