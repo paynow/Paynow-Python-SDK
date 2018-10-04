@@ -426,7 +426,7 @@ class Paynow:
             "amount": payment.total(),
             "id": self.integration_id,
             "additionalinfo": payment.info(),
-            "authemail": "",
+            "authemail": payment.auth_email or "",
             "status": "Message"
         }
 
