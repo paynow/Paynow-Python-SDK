@@ -16,6 +16,7 @@ setup(
     long_description_content_type='text/markdown',  # Optional (see note above)
     url='https://gitlab.com/paynow-developer-hub/Paynow-Python-SDK',  # Optional
     author='WebDev Projects',  # Optional
+    contribution = 'beven nyamande'
     author_email='pkg-dev@webdevworld.com',  # Optional
     classifiers=[  # Optional
         'Development Status :: 5 - Production/Stable',
