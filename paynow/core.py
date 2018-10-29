@@ -1,14 +1,13 @@
-
+from decimal import *
 import requests
 import hashlib
 from urllib.parse import quote_plus, parse_qs
 
-"""
-Exception thrown when hash from Paynow does not match locally generated hash
-"""
+
 
 
 class HashMismatchException(Exception):
+    """Exception if hash from Paynow doesn't match client's generated hash"""
     def __init__(self, message):
         super(HashMismatchException, self).__init__(message)
 
@@ -63,7 +62,9 @@ class StatusResponse:
             self.paid = self.status == 'paid'
 
             if 'amount' in data:
-                self.amount = float(data['amount'])
+                with decimal.localcontext() as ctx:
+		            ctx.prec = 2 # convert to two decimal places
+		        self.amount = Decimal(data['amount']).quantize(Decimal('.01'), rounding=ROUND_UP)
             if 'reference' in data:
                 self.reference = data['reference']
             if 'paynowreference' in data:
