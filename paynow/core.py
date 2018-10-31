@@ -142,10 +142,12 @@ class Payment:
         auth_email (str): The user's email address.
     """
 
-    def __init__(self, reference: str, auth_email: str):
+    def __init__(self, reference: str, auth_email: str, phone=None, method=None):
         self.reference = reference
         self.auth_email = auth_email
-        self.items = []
+        self.items = {} # constant time perfomance issue
+        self.phone = phone
+        self.method = method
 
     def add(self, title: str, amount: float):
         """ Add an item to the 'cart'
@@ -154,9 +156,8 @@ class Payment:
             title (str): The name of the item 
             amount (float): The cost of the item
         """
-        # TODO: Validate
         if type(title) == str and type(amount) == float:
-            return self.items.append([title, amount])
+            return self.items.update({title, amount})
         else:
             raise ValueError('title must be a string, amount a float')
 
@@ -167,29 +168,20 @@ class Payment:
 
         with localcontext() as ctx:
             ctx.prec = 2 # convert to two decimal places
-        amount =  sum([self.items[index][1] for index in range(len(self.items))])
+        amount =  sum(self.items[key] for key in self.items.keys())
         return Decimal(amount).quantize(Decimal('.01'), rounding=ROUND_UP)
 
     def info(self):
         """Generate text which represents the items in cart
 
         Returns:
-            str: The text representation of the cart
+            str: The text representation of the cart as key-value pairs
         """
-        out = ""
-        for item in self.items:
-            out += (item[0] + ", ")
-        return out
+        return self.items
 
 
 class Paynow:
     """Contains helper methods to interact with the Paynow API
-
-    Attributes:
-        integration_id (str): Merchant's integration id. 
-        integration_key (str):  Merchant's integration key.
-        return_url (str):  Merchant's return url
-        result_url (str):  Merchant's result url
 
     Args:
         integration_id (str): Merchant's integration id. (You can generate this in your merchant dashboard)
@@ -199,31 +191,14 @@ class Paynow:
 
     """
 
-    integration_id: str = ""
-    """
-    str: Merchant's integration id
-    """
 
-    integration_key: str = ""
-    """
-    str: Merchant's integration key
-    """
-
-    return_url = ""
-    """
-    str: Merchant's return url
-    """
-
-    result_url = ""
-    """
-    str: Merchant's result url
-    """
-
-    def __init__(self, integration_id, integration_key, return_url, result_url):
+    def __init__(self, integration_id, integration_key,return_url=None,
+                       result_url=None):
         self.integration_id = integration_id
         self.integration_key = integration_key
         self.return_url = return_url
         self.result_url = result_url
+
 
     def set_result_url(self, url: str):
         """Sets the url where the status of the transaction will be sent when payment status is updated within Paynow
@@ -244,12 +219,15 @@ class Paynow:
         """
         self.return_url = url
 
-    def create_payment(self, reference: str, auth_email: str = ''):
-        """Create a new payment
+
+    def create_payment(self, reference: str, auth_email: str=None,phone: str=None,method: str=None):
+        """Creates a new payment
 
         Args:
             reference (str): Unique identifier for the transaction. 
             auth_email (str): The phone number to send to Paynow. This is required for mobile transactions
+            phone (str): The phone number to send to Paynow
+            method (str): The mobile money method being employed
 
         Note: 
             Auth email is required for mobile transactions. 
@@ -257,7 +235,7 @@ class Paynow:
         Returns:
             Payment: An object which provides an easy to use API to add items to Payment
         """
-        return Payment(reference, auth_email)
+        return Payment(reference, auth_email, phone=phone, method=method)
 
     def send(self, payment: Payment):
         """Send a transaction to Paynow
@@ -268,20 +246,9 @@ class Paynow:
         Returns:
             StatusResponse: An object with information about the status of the transaction
         """
+
         return self.__init(payment)
 
-    def send_mobile(self, payment: Payment, phone: str, method: str):
-        """Send a mobile transaction to Paynow
-
-        Args:
-            payment (Payment): The payment object with details about transaction
-            phone (str): The phone number to send to Paynow
-            method (str): The mobile money method being employed
-
-        Returns:
-            StatusResponse: An object with information about the status of the transaction
-        """
-        return self.__init_mobile(payment, phone, method)
 
     def process_status_update(self, data: object) -> StatusResponse:
         """This method parses the status update data from Paynow into an easier to use format
@@ -308,53 +275,20 @@ class Paynow:
         """
         if payment.total() <= 0:
             raise ValueError('Transaction total cannot be less than 1')
-
         # Build up the object
         data = self.__build(payment)
+
+        #check if its mobile
+        if (data['phone'] and data['method']):
+            if not data['auth_email'] or len(data['auth_email']) <= 0:
+                raise ValueError('Auth email is required for mobile transactions. You can pass the auth email as the '
+                                 'second parameter in the create_payment method call')
+            # Save response from Paynow
+            response = requests.post(self.URL_INITIATE_MOBILE_TRANSACTION, data=data)
 
         # Save response from Paynow
         response = requests.post(self.URL_INITIATE_TRANSACTION, data=data)
 
-        # Reconstruct the response into key-value pairs
-        response_object = self.__rebuild_response(parse_qs(response.text))
-
-        # If an error was encountered return a new InitResponse object without validating hash since hash is not
-        # generated for error responses
-        if str(response_object['status']).lower() == 'error':
-            return InitResponse(response_object)
-
-        # Verify the hash from Paynow with the locally generated one
-        if not self.__verify_hash(response_object, self.integration_key):
-            raise HashMismatchException("Hashes do not match")
-
-        # Create a new InitResponse object object passing in the data from Paynow
-        return InitResponse(response_object)
-
-    def __init_mobile(self, payment: Payment, phone: str, method: str):
-        """Initiate a mobile transaction
-
-        Args:
-            payment (Payment): The payment object with details about transaction
-            phone (str): The phone number to send to Paynow
-            method (str): The mobile money method being employed
-
-        Returns:
-            InitResponse: An object with misc information about the initiated transaction i.e
-            redirect url (if available), status of initiation etc (see `InitResponse` declaration above)
-        """
-        if payment.total() <= 0:
-            raise ValueError('Transaction total cannot be less than 1')
-
-        if not payment.auth_email or len(payment.auth_email) <= 0:
-            raise ValueError('Auth email is required for mobile transactions. You can pass the auth email as the '
-                             'second parameter in the create_payment method call')
-
-        # Build up the object
-        data = self.__build_mobile(payment, phone, method)
-
-        # Save response from Paynow
-        response = requests.post(
-            self.URL_INITIATE_MOBILE_TRANSACTION, data=data)
 
         # Reconstruct the response into key-value pairs
         response_object = self.__rebuild_response(parse_qs(response.text))
@@ -388,6 +322,7 @@ class Paynow:
         return StatusResponse(
             response_object, False)
 
+
     def __build(self, payment: Payment):
         """Build up a payment into the format required by Paynow
 
@@ -405,52 +340,28 @@ class Paynow:
             "amount": payment.total(),
             "id": self.integration_id,
             "additionalinfo": payment.info(),
-            "authemail": payment.auth_email or "",
+            "authemail": payment.auth_email,
+            "phone": payment.phone,
+            "method": payment.method,
             "status": "Message"
         }
 
+        # check if they contain anything else delete them
+        if not (body['phone'] and body['method']):
+            del body['phone'] #delete these fields in body
+            del body['method'] #delete these fields in body
+
         for key, value in body.items():
-            body[key] = quote_plus(str(value))
+            try:
+                body[key] = quote_plus(str(value))
+            except Exception as e:
+                pass
+
 
         body['hash'] = self.__hash(body, self.integration_key)
 
         return body
 
-    def __build_mobile(self, payment: Payment, phone: str, method: str):
-        """Build up a mobile payment into the format required by Paynow
-        Args:
-            payment (Payment): The payment object to format
-            phone (str): The phone number to send to Paynow
-            method (str): The mobile money method being employed
-
-        Note:
-            Currently supported methods are `ecocash` and `onemoney`
-
-        Returns:
-            dict: A dictionary properly formatted in the format required by Paynow
-        """
-        body = {
-            "resulturl": self.result_url,
-            "returnurl": self.return_url,
-            "reference": payment.reference,
-            "amount": payment.total(),
-            "id": self.integration_id,
-            "additionalinfo": payment.info(),
-            "authemail":  payment.auth_email,
-            "phone": phone,
-            "method": method,
-            "status": "Message"
-        }
-
-        for key, value in body.items():
-            if(key == 'authemail'):
-                continue
-
-            body[key] = quote_plus(str(value))  # Url encode the
-
-        body['hash'] = self.__hash(body, self.integration_key)
-
-        return body
 
     def __hash(self, items: {}, integration_key: str):
         """Generates a SHA512 hash of the transaction
@@ -470,8 +381,8 @@ class Paynow:
             out += str(value)
 
         out += integration_key.lower()
-
-        return hashlib.sha512(out.encode('utf-8')).hexdigest().upper()
+        # using decode method from python docs ignore if already utf-8
+        return hashlib.sha512(out.decode('utf-8', 'ignore')).hexdigest().upper()
 
     def __verify_hash(self, response: {}, integration_key: str):
         """Verify the hash coming from Paynow

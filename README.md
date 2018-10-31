@@ -16,6 +16,12 @@ Install the library using pip
 $ pip install paynow
 ```
 
+Install the library using the recent pipenv
+
+```sh
+$ pipenv install paynow
+```
+
 and import the Paynow class into your project
 
 ```python
@@ -34,8 +40,8 @@ Create an instance of the Paynow class optionally setting the result and return 
 paynow = Paynow(
 	'INTEGRATION_ID',
 	'INTEGRATION_KEY',
-	'http://google.com',
-	'http://google.com'
+	return_url='http://www.example.com/redirect',
+	result_url='http://www.example.com/results'
 	)
 ```
 
@@ -44,11 +50,20 @@ Create a new payment passing in the reference for that payment (e.g invoice id, 
 ```python
 payment = paynow.create_payment('Order #100', 'test@example.com')
 ```
+> Mobile Transactions
 
+If you want to send an express (mobile) checkout request instead, the only thing that differs is the last step.
+You just provide values for default parameters of the send method as shown below
+
+```python
+payment = paynow.create_payment('Order #100', 'test@example.com', phone='0777054115', method='ecocash')
+```
+
+`send` method takes in two additional arguments i.e The phone number to send the payment request to and the mobile money method to use for the request. **Note that currently only ecocash is supported**
 You can then start adding items to the payment
 
 ```python
-# Passing in the name of the item and the price of the item
+# Pass the name of the item and the price of the item as arguments
 payment.add('Bananas', 2.50)
 payment.add('Apples', 3.40)
 # get the sum of all products added to cart as a float
@@ -62,7 +77,9 @@ When you're finally ready to send your payment to Paynow, you can use the `send`
 response = paynow.send(payment)
 ```
 
-The response from Paynow will b have some useful information like whether the request was successful or not. If it was, for example, it contains the url to redirect the user so they can make the payment. You can view the full list of data contained in the response in our wiki
+The response from Paynow will have some useful information like whether the request was successful or not.
+If it was, for example, it contains the url to redirect the user so they can make the payment.
+You can view the full list of data contained in the response in our wiki
 
 If request was successful, you should consider saving the poll url sent from Paynow in the database
 
@@ -78,17 +95,6 @@ if response.success:
 
 ---
 
-> Mobile Transactions
-
-If you want to send an express (mobile) checkout request instead, the only thing that differs is the last step. You make a call to the `send_mobile` in the `paynow` object
-instead of the `send` method.
-
-The `send_mobile` method unlike the `send` method takes in two additional arguments i.e The phone number to send the payment request to and the mobile money method to use for the request. **Note that currently only ecocash is supported**
-
-```python
-# Save the response from paynow in a variable
-response = paynow.send_mobile(payment, '0777777777', 'ecocash')
-```
 
 The response object is almost identical to the one you get if you send a normal request. With a few differences, firstly, you don't get a url to redirect to. Instead you instructions (which ideally should be shown to the user instructing them how to make payment on their mobile phone)
 
