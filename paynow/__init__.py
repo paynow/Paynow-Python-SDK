@@ -138,26 +138,13 @@ class Payment:
     Attributes:
         reference (str): Unique identifier for the transaction
         items ([]): Array of items in the 'cart'
-    """
-
-    reference: str = ""
-    """
-    str: Unique identifier for the transaction
-    """
-
-    items: [] = []
-    """
-    []: Array of items in the 'cart'
-    """
-
-    auth_email: str
-    """
-    str: The user's email address.
+        auth_email (str): The user's email address.
     """
 
     def __init__(self, reference: str, auth_email: str):
         self.reference = reference
         self.auth_email = auth_email
+        self.items = []
 
     def add(self, title: str, amount: float):
         """ Add an item to the 'cart'
@@ -170,16 +157,10 @@ class Payment:
         self.items.append([title, amount])
         return self
 
-    def total(self):
-        """Get the total cost of the items in the transaction
 
-        Returns:
-            float: The total
-        """
-        total = 0.0
-        for item in self.items:
-            total += float(item[1])
-        return total
+    def total(self):
+        """ Returns total cost of all items in the transaction as float """
+        return sum([self.items[index][1] for index in range(len(self.items))])
 
     def info(self):
         """Generate text which represents the items in cart

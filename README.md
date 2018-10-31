@@ -51,6 +51,8 @@ You can then start adding items to the payment
 # Passing in the name of the item and the price of the item
 payment.add('Bananas', 2.50)
 payment.add('Apples', 3.40)
+# get the sum of all products added to cart as a float
+total = payment.total()
 ```
 
 When you're finally ready to send your payment to Paynow, you can use the `send` method in the `paynow` object.
