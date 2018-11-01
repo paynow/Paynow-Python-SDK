@@ -1,4 +1,5 @@
 from decimal import *
+import json
 import requests
 import hashlib
 from urllib.parse import quote_plus, parse_qs
@@ -12,10 +13,11 @@ class HashMismatchException(Exception):
     def __init__(self, message):
         super(HashMismatchException, self).__init__(message)
 
+
 # TODO: Update status response class to support dictionary
+class StatusResponse(dict):
+    """docstring for StatusResponse"""
 
-
-class StatusResponse:
     paid: bool
     """
     bool: Boolean value indication whether the transaction was paid or not
@@ -45,31 +47,23 @@ class StatusResponse:
     any: Hash of the transaction in paynow
     """
 
-    def __status_update(self, data):
-        """Parses the incoming status update from Paynow
+    def __init__(self, data, update, **kw):
+        self.__dict__.update(kw)
 
-        Args:
-            data (any): The data from paynow
-
-        """
-        print('Not implemented')
-        # TODO: Implement method
-
-    def __init__(self, data, update):
         if update:
-            self.__status_update(data)
-        else:
-            self.status = data['status'].lower()
-            self.paid = self.status == 'paid'
+            self.data = data
 
-            if 'amount' in data:
-                self.amount = float(data['amount'])
-            if 'reference' in data:
-                self.reference = data['reference']
-            if 'paynowreference' in data:
-                self.paynow_reference = data['paynowreference']
-            if 'hash' in data:
-                self.hash = data['hash']
+        self.data['status'] = data['status'].lower()
+        self.data['paid'] = data['status'] == 'paid'
+
+        if 'amount' in data:
+            self.data['amount'] = float(data['amount'])
+        if 'reference' in data:
+            self.data['reference'] = data['reference']
+        if 'paynowreference' in data:
+            self.data['paynow_reference'] = data['paynowreference']
+        if 'hash' in data:
+            self.data['hash'] = data['hash']
 
 
 class InitResponse:
@@ -162,7 +156,6 @@ class Payment:
             raise ValueError('title must be a string, amount a float')
 
 
-
     def total(self):
         """ Returns total cost of all items in the transaction as float """
 
@@ -172,12 +165,8 @@ class Payment:
         return Decimal(amount).quantize(Decimal('.01'), rounding=ROUND_UP)
 
     def info(self):
-        """Generate text which represents the items in cart
-
-        Returns:
-            str: The text representation of the cart as key-value pairs
-        """
-        return self.items
+        """Generate json which represents the items in cart"""
+        return json.dumps(self.items,sort_keys=True, indent=4)
 
 
 class Paynow:
@@ -191,14 +180,12 @@ class Paynow:
 
     """
 
-
     def __init__(self, integration_id, integration_key,return_url=None,
                        result_url=None):
         self.integration_id = integration_id
         self.integration_key = integration_key
         self.return_url = return_url
         self.result_url = result_url
-
 
     def set_result_url(self, url: str):
         """Sets the url where the status of the transaction will be sent when payment status is updated within Paynow
@@ -248,7 +235,6 @@ class Paynow:
         """
 
         return self.__init(payment)
-
 
     def process_status_update(self, data: object) -> StatusResponse:
         """This method parses the status update data from Paynow into an easier to use format

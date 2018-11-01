@@ -1,9 +1,18 @@
-import json
-from decimal import *
 import unittest
+from . import Paynow
 
-items = {'b':2,'basd':2}
-msg = items
-print(dir(msg))
-msg.pop('b')
-print(msg)
+
+class PaynowTestCase(unittest.TestCase):
+    pass
+
+    def setUp():
+        pass
+
+    def tearDown():
+        pass
+
+
+
+
+if __name__ == '__main__':
+    unittest.main()
