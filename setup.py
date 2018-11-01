@@ -12,7 +12,7 @@ setup(
     name='paynow',  # Required
     version='1.0.2',  # Required
     description='Paynow Python SDK',  # Required
-    long_description=long_description,  # Optional
+    long_description=long_description,
     long_description_content_type='text/markdown',  # Optional (see note above)
     url='https://gitlab.com/paynow-developer-hub/Paynow-Python-SDK',  # Optional
     author='WebDev Projects',  # Optional
