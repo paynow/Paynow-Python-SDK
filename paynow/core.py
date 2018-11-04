@@ -126,7 +126,6 @@ class InitResponse:
         if 'instructions' in data:
             self.instruction = data['instructions']
 
-
 class Payment:
     """Helper class for building up a transaction before sending it off to Paynow
 
@@ -136,12 +135,12 @@ class Payment:
         auth_email (str): The user's email address.
     """
 
-    def __init__(self, reference: str, auth_email: str, phone=None, method=None):
+    def __init__(self, reference: str, auth_email: str=None, phone=None):
         self.reference = reference
         self.auth_email = auth_email
-        self.items = {} # constant time perfomance issue
         self.phone = phone
-        self.method = method
+        self.items = {} # to store cart items
+
 
     def add(self, title: str, amount: float):
         """ Add an item to the 'cart'
@@ -151,7 +150,8 @@ class Payment:
             amount (float): The cost of the item
         """
         if type(title) == str and type(amount) == float:
-            return self.items.update({title, amount})
+            self.items[title] = amount
+            return self.items
         else:
             raise ValueError('title must be a string, amount a float')
 
@@ -169,60 +169,27 @@ class Payment:
         return json.dumps(self.items,sort_keys=True, indent=4)
 
 
+
+
 class Paynow:
-    """Contains helper methods to interact with the Paynow API
-
-    Args:
-        integration_id (str): Merchant's integration id. (You can generate this in your merchant dashboard)
-        integration_key (str):  Merchant's integration key.
-        return_url (str):  Merchant's return url
-        result_url (str):  Merchant's result url
-
-    """
 
     def __init__(self, integration_id, integration_key,return_url=None,
-                       result_url=None):
+                       result_url=None,
+                       auth_email=None,
+                       phone=None):
         self.integration_id = integration_id
         self.integration_key = integration_key
         self.return_url = return_url
         self.result_url = result_url
+        self.auth_email = auth_email
+        self.phone = phone
 
-    def set_result_url(self, url: str):
-        """Sets the url where the status of the transaction will be sent when payment status is updated within Paynow
-
-        Args: 
-            url (str): The url where the status of the transaction will be sent when 
-                payment status is updated within Paynow
-
-        """
-        self.result_url = url
-
-    def set_return_url(self, url: str):
-        """Sets the url where the user will be redirected to after they are done on Paynow
-
-        Args:
-            url (str): The url to redirect user to once they are done on Paynow's side
-
-        """
-        self.return_url = url
-
-
-    def create_payment(self, reference: str, auth_email: str=None,phone: str=None,method: str=None):
-        """Creates a new payment
-
-        Args:
-            reference (str): Unique identifier for the transaction. 
-            auth_email (str): The phone number to send to Paynow. This is required for mobile transactions
-            phone (str): The phone number to send to Paynow
-            method (str): The mobile money method being employed
-
-        Note: 
-            Auth email is required for mobile transactions. 
-
-        Returns:
-            Payment: An object which provides an easy to use API to add items to Payment
-        """
-        return Payment(reference, auth_email, phone=phone, method=method)
+    def create_payment(self, reference: str):
+        if all([self.auth_email, self.phone]):
+            return Payment(reference, auth_email=self.auth_email,
+                           phone=self.phone)
+        
+        return Payment(reference)
 
     def send(self, payment: Payment):
         """Send a transaction to Paynow
@@ -402,3 +369,5 @@ class Paynow:
             res[key] = str(value[0])
 
         return res
+
+
