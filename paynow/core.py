@@ -58,7 +58,7 @@ class Paynow:
     	self.__set_reference(reference)
     	data = self.__build_request() # send tha data to Paynow
     	if all([data['authemail'], data['phone']]):
-            # TODO put try except 
+            # TODO put try except
     		return self.__set_response_from_paynow(
                 requests.post(URL_INITIATE_MOBILE_TRANSACTION, data=data))
     	# URL that handles web payments
