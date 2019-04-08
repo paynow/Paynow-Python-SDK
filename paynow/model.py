@@ -507,7 +507,7 @@ class Paynow:
         old_hash = response['hash']
         new_hash = self.__hash(response, integration_key)
 
-        return new_hash == new_hash
+        return old_hash == new_hash
 
     def __rebuild_response(self, response):
         """
