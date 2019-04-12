@@ -309,7 +309,7 @@ class Paynow:
         Returns:
             StatusResponse: An object with information about the status of the transaction
         """
-        if len(phone)!=10 or payment.total()==0 or method not in self.VALID_PRE.keys() or phone[0:3] not in self.VALID_PRE[method] or method is None:
+        if len(phone)!=10 or method not in list(self.VALID_PRE.keys()) or phone[0:3] not in self.VALID_PRE[method]:
             raise InvalidParametersException("Invalid Parameters")
 
         return self.__init_mobile(payment, phone, method)
