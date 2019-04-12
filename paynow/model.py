@@ -12,7 +12,7 @@ class HashMismatchException(Exception):
 
 class InvalidParametersException(Exception):
     """
-    Exception thrown when hash from Paynow does not match locally generated hash
+    Exception thrown when Invalid Parameters are detected
     """
     def __init__(self, message):
         super(InvalidParametersException, self).__init__(message)
