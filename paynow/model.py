@@ -10,6 +10,13 @@ class HashMismatchException(Exception):
     def __init__(self, message):
         super(HashMismatchException, self).__init__(message)
 
+class InvalidParametersException(Exception):
+    """
+    Exception thrown when hash from Paynow does not match locally generated hash
+    """
+    def __init__(self, message):
+        super(InvalidParametersException, self).__init__(message)
+
 # TODO: Update status response class to support dictionary
 
 
@@ -244,6 +251,7 @@ class Paynow:
         self.integration_key = integration_key
         self.return_url = return_url
         self.result_url = result_url
+        self.VALID_PRE = {"ecocash" : ["077", "078"], "telecel" : ["073"], "netone" : ["071"]}
 
     def set_result_url(self, url):
         """Sets the url where the status of the transaction will be sent when payment status is updated within Paynow
@@ -290,7 +298,7 @@ class Paynow:
         """
         return self.__init(payment)
 
-    def send_mobile(self, payment, phone, method):
+    def send_mobile(self, payment, phone, method="ecocash"):
         """Send a mobile transaction to Paynow
 
         Args:
@@ -301,6 +309,9 @@ class Paynow:
         Returns:
             StatusResponse: An object with information about the status of the transaction
         """
+        if len(phone)!=10 or payment.total()==0 or method not in self.VALID_PRE.keys() or phone[0:3] not in self.VALID_PRE[method] or method is None:
+            raise InvalidParametersException("Invalid Parameters")
+
         return self.__init_mobile(payment, phone, method)
 
     def process_status_update(self, data):
