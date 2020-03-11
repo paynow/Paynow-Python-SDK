@@ -81,7 +81,7 @@ if response.success:
 If you want to send an express (mobile) checkout request instead, the only thing that differs is the last step. You make a call to the `send_mobile` in the `paynow` object
 instead of the `send` method.
 
-The `send_mobile` method unlike the `send` method takes in two additional arguments i.e The phone number to send the payment request to and the mobile money method to use for the request. **Note that currently only ecocash is supported**
+The `send_mobile` method unlike the `send` method takes in two additional arguments i.e The phone number to send the payment request to and the mobile money method to use for the request. **Note that currently only ecocash and onemoney are supported**
 
 ```python
 # Save the response from paynow in a variable
