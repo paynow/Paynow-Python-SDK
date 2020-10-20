@@ -162,10 +162,10 @@ This generates the Paynow Image Button
 ```
 
 ### Button Type
-There are 3 options available for button ```type``` which include
-	- image: Generate HTML code for Paynow Payment Button
-	- url: Generate Paynow Payment URL
-	- text: Generate HTML code for Text with link to Paynow Payment Page
+There are 3 options available for button ```type``` which include:
+	*image*: Generate HTML code for Paynow Payment Button
+	*url*: Generate Paynow Payment URL
+	*text*: Generate HTML code for Text with link to Paynow Payment Page
 
 
 ## Rendering Buttons
