@@ -1,7 +1,7 @@
 import requests
 import hashlib
 from six.moves.urllib_parse import quote_plus, parse_qs
-
+from utils import ButtonGenerator
 
 class HashMismatchException(Exception):
     """
@@ -192,7 +192,7 @@ class Payment:
         return out
 
 
-class Paynow:
+class Paynow(ButtonGenerator):
     """Contains helper methods to interact with the Paynow API
 
     Attributes:
