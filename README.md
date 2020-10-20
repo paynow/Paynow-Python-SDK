@@ -144,3 +144,68 @@ if(response.success):
 
     print("Payment Status: ", status.status)
 ```
+
+# Paynow Button Generator
+Create Paynow Buttons using your paynow instance by calling the method ```button_generator```
+
+## Example
+This generates the Paynow Image Button
+```python
+		paynow_button = paynow.button_generator({
+		'email' : 'ignertic@icloud.com', # The Merchant's Email
+		'reference' : '123', # transaction reference
+		'amount' : 20.50, # transaction amount
+		'lock' : True, # Lock Form
+		'text' : 'donate', # Label for the button
+		'type' : 'image' # The type of button
+		})
+```
+
+### Button Type
+There are 3 options available for button ```type``` which include:
+	*image*: Generate HTML code for Paynow Payment Button
+	*url*: Generate Paynow Payment URL
+	*text*: Generate HTML code for Text with link to Paynow Payment Page
+
+
+## Rendering Buttons
+You can render Paynow Buttons directly in your templates
+```python
+		# Your other code
+		# ...............
+
+		paynow_button = paynow.button_generator({
+		'email' : 'ignertic@icloud.com', # The Merchant's Email
+		'reference' : '123', # transaction reference
+		'amount' : 20.50, # transaction amount
+		'lock' : True, # Lock Form
+		'text' : 'donate', # Label for the button
+		'type' : 'image' # The type of button
+		})
+
+		context = {
+			'paynow_button' : paynow_button
+		}
+
+		return render_template('index.html', **context)
+```
+
+For Django it's the same concept
+```python
+		# Your fancy Django stuff here
+		# ....................
+		context = {
+			'paynow_button' : paynow_button
+		}
+		return render(request, 'index.html', context)
+```
+
+### Inside your HTML template file simply add the following line to render
+```html
+			{{ paynow_button }}
+```
+
+## Result
+<img src="https://www.paynow.co.zw/Content/Buttons/Medium_buttons/button_pay-now_medium.png"
+     alt="Paynow Button"
+/>
