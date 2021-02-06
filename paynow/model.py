@@ -130,6 +130,11 @@ class InitResponse:
         if 'instructions' in data:
             self.instruction = data['instructions']
 
+    def __repr__(self):
+        '''Print friendly message, especially on errors'''
+
+        return data['status']
+
 
 class Payment:
     """Helper class for building up a transaction before sending it off to Paynow
@@ -191,6 +196,11 @@ class Payment:
             out += (item[0] + ", ")
         return out
 
+    def __repr__(self):
+        # TODO: how woll this be presented when printed
+        # information is too vague
+        pass
+
 
 class Paynow:
     """Contains helper methods to interact with the Paynow API
@@ -238,8 +248,14 @@ class Paynow:
     """
     str: Merchant's result url
     """
+    # is it necessary to have return and results url ?
+    # why not just combine these two; kill two birds with one stone
+    # Leave the autonomy to the merchant ie merchant knows what to do with
+    # a successful payment else its an error, merchant will debug, paynow
+    # provides information about error
 
-    def __init__(self, integration_id, integration_key, return_url, result_url):
+    def __init__(self, integration_id, integration_key,
+                 return_url='http://', result_url='http://):
         self.integration_id = integration_id
         self.integration_key = integration_key
         self.return_url = return_url
