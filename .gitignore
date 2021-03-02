@@ -16,6 +16,6 @@ __pycache__/
 # due to using tox and pytest
 .tox
 .cache
-test.py
+#test.py
 test2.py
 paynow/*.pyc
