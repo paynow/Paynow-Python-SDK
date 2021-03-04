@@ -168,6 +168,8 @@ class Payment:
             title (str): The name of the item
             amount (float): The cost of the item
         """
+        # FIXME: Dont do this
+        self.items.clear()
         self.items.append([title, amount])
         return self
 
