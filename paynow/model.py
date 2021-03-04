@@ -161,6 +161,7 @@ class Payment:
         self.auth_email = auth_email
         # auto-check to ensure clear list
         #self.clearCart()
+        self.items = []
 
     def add(self, title: str, amount: float):
         """ Add an item to the 'cart'
@@ -169,7 +170,10 @@ class Payment:
             amount (float): The cost of the item
         """
         # FIXME: Dont do this
+        print(f'**** paynow cart is: {len(self.items)}')
         self.items.clear()
+        self.items = []
+        print(f'**** now paynow cart is: {len(self.items)}')
         self.items.append([title, amount])
         return self
 
