@@ -160,7 +160,7 @@ class Payment:
         self.reference = reference
         self.auth_email = auth_email
         # auto-check to ensure clear list
-        self.clearCart()
+        #self.clearCart()
 
     def add(self, title: str, amount: float):
         """ Add an item to the 'cart'
