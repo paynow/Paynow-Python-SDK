@@ -18,4 +18,5 @@ __pycache__/
 .cache
 #test.py
 test2.py
+test3.py
 paynow/*.pyc

@@ -122,6 +122,7 @@ class InitResponse:
         self.poll_url = data['pollurl']
 
         if self.has_redirect:
+            
             self.redirect_url = data['browserurl']
 
         if 'instructions' in data:
@@ -158,16 +159,23 @@ class Payment:
     def __init__(self, reference, auth_email):
         self.reference = reference
         self.auth_email = auth_email
+        # auto-check to ensure clear list
+        self.clear()
 
-    def add(self, title, amount):
+    def add(self, title: str, amount: float):
         """ Add an item to the 'cart'
         Args:
             title (str): The name of the item
             amount (float): The cost of the item
         """
-        # TODO: Validate
         self.items.append([title, amount])
         return self
+
+    def clear(self):
+        '''
+            clear all added items
+        '''
+        self.items.clear()
 
     def total(self):
         """Get the total cost of the items in the transaction
@@ -177,6 +185,7 @@ class Payment:
         total = 0.0
         for item in self.items:
             total += float(item[1])
+
         return total
 
     def info(self):
