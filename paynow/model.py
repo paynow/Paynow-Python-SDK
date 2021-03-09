@@ -45,10 +45,8 @@ class StatusResponse:
 
     def __status_update(self, data):
         """Parses the incoming status update from Paynow
-
         Args:
             data (any): The data from paynow
-
         """
         print('Not implemented')
         # TODO: Implement method
@@ -72,7 +70,6 @@ class StatusResponse:
 
 class InitResponse:
     """Wrapper class for response from Paynow during transaction initiation
-
     """
 
     success=bool
@@ -111,29 +108,34 @@ class InitResponse:
     """
 
     def __init__(self, data):
+        # TODO return dict of kwargs
+
         self.status = data['status']
         self.success = data['status'].lower() != 'error'
         self.has_redirect = 'browserurl' in data
         self.hash = 'hash' in data
 
         if not self.success:
+            self.error = data['error']
             return
 
         self.poll_url = data['pollurl']
 
-        if not self.success:
-            self.error = data['error']
-
         if self.has_redirect:
+            
             self.redirect_url = data['browserurl']
 
         if 'instructions' in data:
             self.instruction = data['instructions']
 
+    def __repr__(self):
+        '''Print friendly message, especially on errors'''
+
+        return self.status
+
 
 class Payment:
     """Helper class for building up a transaction before sending it off to Paynow
-
     Attributes:
         reference (str): Unique identifier for the transaction
         items ([]): Array of items in the 'cart'
@@ -157,32 +159,37 @@ class Payment:
     def __init__(self, reference, auth_email):
         self.reference = reference
         self.auth_email = auth_email
+        # auto-check to ensure clear list
+        self.clearCart()
 
-    def add(self, title, amount):
+    def add(self, title: str, amount: float):
         """ Add an item to the 'cart'
-
         Args:
             title (str): The name of the item
             amount (float): The cost of the item
         """
-        # TODO: Validate
         self.items.append([title, amount])
         return self
 
+    def clearCart(self):
+        '''
+            clear all added items
+        '''
+        self.items.clear()
+
     def total(self):
         """Get the total cost of the items in the transaction
-
         Returns:
             float: The total
         """
         total = 0.0
         for item in self.items:
             total += float(item[1])
+
         return total
 
     def info(self):
         """Generate text which represents the items in cart
-
         Returns:
             str: The text representation of the cart
         """
@@ -191,22 +198,24 @@ class Payment:
             out += (item[0] + ", ")
         return out
 
+    def __repr__(self):
+        # TODO: how woll this be presented when printed
+        # information is too vague
+        pass
+
 
 class Paynow:
     """Contains helper methods to interact with the Paynow API
-
     Attributes:
         integration_id (str): Merchant's integration id.
         integration_key (str):  Merchant's integration key.
         return_url (str):  Merchant's return url
         result_url (str):  Merchant's result url
-
     Args:
         integration_id (str): Merchant's integration id. (You can generate this in your merchant dashboard)
         integration_key (str):  Merchant's integration key.
         return_url (str):  Merchant's return url
         result_url (str):  Merchant's result url
-
     """
 
     URL_INITIATE_TRANSACTION = "https://www.paynow.co.zw/interface/initiatetransaction"
@@ -238,8 +247,14 @@ class Paynow:
     """
     str: Merchant's result url
     """
+    # is it necessary to have return and results url ?
+    # why not just combine these two; kill two birds with one stone
+    # Leave the autonomy to the merchant ie merchant knows what to do with
+    # a successful payment else its an error, merchant will debug, paynow
+    # provides information about error
 
-    def __init__(self, integration_id, integration_key, return_url, result_url):
+    def __init__(self, integration_id, integration_key,
+                 return_url='https://www.google.com', result_url='https://www.google.com'):
         self.integration_id = integration_id
         self.integration_key = integration_key
         self.return_url = return_url
@@ -247,33 +262,26 @@ class Paynow:
 
     def set_result_url(self, url):
         """Sets the url where the status of the transaction will be sent when payment status is updated within Paynow
-
         Args:
             url (str): The url where the status of the transaction will be sent when
                 payment status is updated within Paynow
-
         """
         self.result_url = url
 
     def set_return_url(self, url):
         """Sets the url where the user will be redirected to after they are done on Paynow
-
         Args:
             url (str): The url to redirect user to once they are done on Paynow's side
-
         """
         self.return_url = url
 
     def create_payment(self, reference, auth_email):
         """Create a new payment
-
         Args:
             reference (str): Unique identifier for the transaction.
             auth_email (str): The phone number to send to Paynow. This is required for mobile transactions
-
         Note:
             Auth email is required for mobile transactions.
-
         Returns:
             Payment: An object which provides an easy to use API to add items to Payment
         """
@@ -281,10 +289,8 @@ class Paynow:
 
     def send(self, payment):
         """Send a transaction to Paynow
-
         Args:
             payment (Payment): The payment object with details about transaction
-
         Returns:
             StatusResponse: An object with information about the status of the transaction
         """
@@ -292,12 +298,10 @@ class Paynow:
 
     def send_mobile(self, payment, phone, method):
         """Send a mobile transaction to Paynow
-
         Args:
             payment (Payment): The payment object with details about transaction
             phone (str): The phone number to send to Paynow
             method (str): The mobile money method being employed
-
         Returns:
             StatusResponse: An object with information about the status of the transaction
         """
@@ -305,23 +309,18 @@ class Paynow:
 
     def process_status_update(self, data):
         """This method parses the status update data from Paynow into an easier to use format
-
         Args:
             data (dict): A dictionary with the data from Paynow. This is the POST data sent by Paynow
                 to your result url after the status of a transaction has changed (see Django usage example)
-
         Returns:
             StatusResponse: An object with information about the status of the transaction
-
         """
         return StatusResponse(data, True)
 
     def __init(self, payment):
         """Initiate the given transaction with Paynow
-
         Args:
             payment (Payment): The payment object with details about transaction
-
         Returns:
             InitResponse: An object with misc information about the initiated transaction i.e
             redirect url (if available), status of initiation etc (see `InitResponse` declaration above)
@@ -352,12 +351,10 @@ class Paynow:
 
     def __init_mobile(self, payment, phone, method):
         """Initiate a mobile transaction
-
         Args:
             payment (Payment): The payment object with details about transaction
             phone (str): The phone number to send to Paynow
             method (str): The mobile money method being employed
-
         Returns:
             InitResponse: An object with misc information about the initiated transaction i.e
             redirect url (if available), status of initiation etc (see `InitResponse` declaration above)
@@ -393,34 +390,28 @@ class Paynow:
 
     def check_transaction_status(self, poll_url):
         """Check the status transaction of the transaction with the given poll url
-
         Args:
             poll_url (str): Poll url of the transaction
-
         Returns:
             StatusResponse: An object with information about the status of the transaction
-
         """
         response = requests.post(poll_url, data={})
 
-        response_object = self.__rebuild_response(parse_qs(response.text))
+        _parsed = parse_qs(response.text)
+
+        response_object = self.__rebuild_response(_parsed)
 
         return StatusResponse(
             response_object, False)
 
     def __build(self, payment):
         """Build up a payment into the format required by Paynow
-
         Args:
             payment (Payment): The payment object to format
-
         Returns:
             dict: A dictionary properly formatted in the format required by Paynow
-
         """
         body = {
-            "resulturl": self.result_url,
-            "returnurl": self.return_url,
             "reference": payment.reference,
             "amount": payment.total(),
             "id": self.integration_id,
@@ -431,7 +422,9 @@ class Paynow:
 
         for key, value in body.items():
             body[key] = quote_plus(str(value))
-
+        
+        body['resulturl'] = self.result_url
+        body['returnurl'] = self.return_url
         body['hash'] = self.__hash(body, self.integration_key)
 
         return body
@@ -442,16 +435,12 @@ class Paynow:
             payment (Payment): The payment object to format
             phone (str): The phone number to send to Paynow
             method (str): The mobile money method being employed
-
         Note:
             Currently supported methods are `ecocash` and `onemoney`
-
         Returns:
             dict: A dictionary properly formatted in the format required by Paynow
         """
         body = {
-            "resulturl": self.result_url,
-            "returnurl": self.return_url,
             "reference": payment.reference,
             "amount": payment.total(),
             "id": self.integration_id,
@@ -468,17 +457,17 @@ class Paynow:
 
             body[key] = quote_plus(str(value))  # Url encode the
 
+        body['resulturl'] = self.result_url
+        body['returnurl'] = self.return_url
         body['hash'] = self.__hash(body, self.integration_key)
 
         return body
 
     def __hash(self, items, integration_key):
         """Generates a SHA512 hash of the transaction
-
         Args:
             items (dict): The transaction dictionary to hash
             integration_key (str): Merchant integration key to use during hashing
-
         Returns:
             str: The hashed transaction
         """
@@ -495,11 +484,9 @@ class Paynow:
 
     def __verify_hash(self, response, integration_key):
         """Verify the hash coming from Paynow
-
         Args:
             response (dict): The response from Paynow
             integration_key (str): Merchant integration key to use during hashing
-
         """
         if('hash' not in response):
             raise ValueError("Response from Paynow does not contain a hash")
@@ -512,10 +499,8 @@ class Paynow:
     def __rebuild_response(self, response):
         """
         Rebuild a response into key value pairs (as opposed to nested array returned from parse_qs)
-
         Args:
             response (dict): The response from Paynow
-
         Returns:
             dict: Key value pairs of the data from Paynow
         """
