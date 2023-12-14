@@ -69,7 +69,6 @@ class StatusResponse:
             if 'hash' in data:
                 self.hash = data['hash']
 
-
 class InitResponse:
     """Wrapper class for response from Paynow during transaction initiation
 
@@ -109,12 +108,17 @@ class InitResponse:
     """
     str: The poll URL sent from Paynow
     """
+    data = list
+    """
+    str: The poll URL sent from Paynow
+    """
 
     def __init__(self, data):
         self.status = data['status']
         self.success = data['status'].lower() != 'error'
         self.has_redirect = 'browserurl' in data
         self.hash = 'hash' in data
+        self.data = data
 
         if not self.success:
             return
@@ -431,7 +435,8 @@ class Paynow:
 
         for key, value in body.items():
             body[key] = quote_plus(str(value))
-
+            if key == 'returnurl' or key == 'resulturl':
+                continue
         body['hash'] = self.__hash(body, self.integration_key)
 
         return body
