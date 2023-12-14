@@ -1,22 +1,22 @@
 # Paynow Zimbabwe Python SDK
 
-Python SDK for Paynow Zimbabwe's API
+- Python SDK for Paynow Zimbabwe's API
 
 # Prerequisites
 
-This library has a set of prerequisites that must be met for it to work
+- This library has a set of prerequisites that must be met for it to work
 
 1.  requests
 
 # Installation
 
-Install the library using pip
+- Install the library using pip
 
 ```sh
-$ pip install paynow
+$ pip3 install paynow
 ```
 
-and import the Paynow class into your project
+- import the Paynow class into your project
 
 ```python
 	from paynow import Paynow
@@ -34,8 +34,8 @@ Create an instance of the Paynow class optionally setting the result and return 
 paynow = Paynow(
 	'INTEGRATION_ID',
 	'INTEGRATION_KEY',
-	'http://google.com',
-	'http://google.com'
+	'http://yourweb.com/returnurl', # merchant return url
+	'http://yourweb.com/results',   # merchant result url
 	)
 ```
 
@@ -60,7 +60,7 @@ When you're finally ready to send your payment to Paynow, you can use the `send`
 response = paynow.send(payment)
 ```
 
-The response from Paynow will b have some useful information like whether the request was successful or not. If it was, for example, it contains the url to redirect the user so they can make the payment. You can view the full list of data contained in the response in our wiki
+The response from Paynow will be having some useful information like whether the request was successful or not. If it was, for example, it contains the url to redirect the user so they can make the payment. You can view the full list of data contained in the response in our wiki
 
 If request was successful, you should consider saving the poll url sent from Paynow in the database
 
@@ -118,12 +118,11 @@ else :
 ```python
 from paynow import Paynow
 
-
 paynow = Paynow(
 	'INTEGRATION_ID',
 	'INTEGRATION_KEY',
-	'http://google.com',
-	'http://google.com'
+	'http://yourweb.com/returnurl', # merchant return url
+	'http://yourweb.com/results',   # merchant result url
 	)
 
 payment = paynow.create_payment('Order', 'test@example.com')
