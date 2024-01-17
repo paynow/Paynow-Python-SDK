@@ -434,9 +434,9 @@ class Paynow:
         }
 
         for key, value in body.items():
-            body[key] = quote_plus(str(value))
             if key == 'returnurl' or key == 'resulturl':
                 continue
+            body[key] = quote_plus(str(value))
         body['hash'] = self.__hash(body, self.integration_key)
 
         return body
