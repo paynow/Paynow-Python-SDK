@@ -23,7 +23,9 @@ jobs:
          with:
           python-version: '3.x'
        - name: Install dependencies
-         run: python -m pip install --upgrade pip setuptools
+         run: |
+          python -m pip install --upgrade pip
+          python -m pip install setuptools wheel
          
       # Build package distributions from the setup.py in paynow directory
        - name: Build package
