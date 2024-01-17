@@ -22,10 +22,8 @@ setup(
 
         # Indicate who your project is intended for
         'Intended Audience :: Developers',
-        'Topic :: Software Development :: Payment Gateway',
-
-        # Pick your license as you wish
-        'License :: MIT License',
+        'License :: OSI Approved :: MIT License',  # Corrected license classifier
+        'Topic :: Software Development :: Libraries :: Python Modules', 
 
         'Programming Language :: Python :: 2',
         'Programming Language :: Python :: 2.7',
