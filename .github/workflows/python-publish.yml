@@ -16,6 +16,18 @@ jobs:
       id-token: write
     steps:
       # retrieve your distributions here
+       - uses: actions/checkout@v2
 
-      - name: Publish package distributions to PyPI
-        uses: pypa/gh-action-pypi-publish@release/v1
+       - name: Set up Python
+         uses: actions/setup-python@v2
+         with:
+          python-version: '3.x'
+
+      # Build package distributions from the setup.py in paynow directory
+       - name: Build package
+         run: |
+          python setup.py sdist bdist_wheel
+  
+      
+       - name: Publish package distributions to PyPI
+         uses: pypa/gh-action-pypi-publish@release/v1
