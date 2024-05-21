@@ -351,7 +351,7 @@ class Paynow:
         if not self.__verify_hash(response_object, self.integration_key):
             raise HashMismatchException("Hashes do not match")
 
-        # Create a new InitResponse object object passing in the data from Paynow
+        # Create a new InitResponse object  passing in the data from Paynow
         return InitResponse(response_object)
 
     def __init_mobile(self, payment, phone, method):
@@ -468,7 +468,7 @@ class Paynow:
         }
 
         for key, value in body.items():
-            if(key == 'authemail'):
+            if key == 'authemail' or key == 'returnurl' or key == 'resulturl':
                 continue
 
             body[key] = quote_plus(str(value))  # Url encode the
