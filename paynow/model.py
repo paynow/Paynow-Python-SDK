@@ -114,6 +114,8 @@ class InitResponse:
     """
 
     def __init__(self, data):
+        # TODO return dict of kwargs
+
         self.status = data['status']
         self.success = data['status'].lower() != 'error'
         self.has_redirect = 'browserurl' in data
@@ -121,12 +123,10 @@ class InitResponse:
         self.data = data
 
         if not self.success:
+            self.error = data['error']
             return
 
         self.poll_url = data['pollurl']
-
-        if not self.success:
-            self.error = data['error']
 
         if self.has_redirect:
             self.redirect_url = data['browserurl']
