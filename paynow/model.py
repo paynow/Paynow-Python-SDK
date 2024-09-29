@@ -1,4 +1,5 @@
 import requests
+from operator import itemgetter
 import hashlib
 from six.moves.urllib_parse import quote_plus, parse_qs
 
@@ -14,31 +15,31 @@ class HashMismatchException(Exception):
 
 
 class StatusResponse:
-    paid=bool
+    # paid=bool
     """
     bool: Boolean value indication whether the transaction was paid or not
     """
 
-    status=str
+    # status=str
     """
     str: The status of the transaction in Paynow
     """
 
-    amount=float
+    # amount=float
     """
     float: The total amount of the transaction
     """
 
-    reference=str
+    # reference=str
     """
     any: The unique identifier for the transaction
     """
 
-    paynow_reference=str
+    # paynow_reference=str
     """
     any: Paynow's unique identifier for the transaction
     """
-    hash=str
+    # hash=str
     """
     any: Hash of the transaction in paynow
     """
@@ -74,41 +75,41 @@ class InitResponse:
 
     """
 
-    success=bool
+    # success=bool
     """
     bool: Boolean indicating whether initiate request was successful or not
     """
 
-    instructions=str
+    # instructions=str
     """
     bool: Boolean indicating whether the response contains a url to redirect to
     """
 
-    has_redirect=bool
+    # has_redirect=bool
     """
     bool: Boolean indicating whether the response contains a url to redirect to
     """
 
-    hash=str
+    # hash=str
     """
     str: Hashed transaction returned from Paynow
     """
 
-    redirect_url=str
+    # redirect_url=str
     """
     str: The url the user should be taken to so they can make a payment
     """
 
-    error=str
+    # error=str
     """
     str: the error message from Paynow, if any
     """
 
-    poll_url=str
+    # poll_url=str
     """
     str: The poll URL sent from Paynow
     """
-    data = list
+    # data = list
     """
     str: The poll URL sent from Paynow
     """
@@ -119,20 +120,18 @@ class InitResponse:
         self.has_redirect = 'browserurl' in data
         self.hash = 'hash' in data
         self.data = data
-
-        if not self.success:
-            return
+        self.error=None
+        self.redirect_url=None
+        self.instruction=None
 
         self.poll_url = data['pollurl']
 
-        if not self.success:
-            self.error = data['error']
+        self.error = data.get('error', None)
 
         if self.has_redirect:
             self.redirect_url = data['browserurl']
 
-        if 'instructions' in data:
-            self.instruction = data['instructions']
+        self.instruction = data.get('instructions', None)
 
 
 class Payment:
@@ -143,17 +142,17 @@ class Payment:
         items ([]): Array of items in the 'cart'
     """
 
-    reference=str
+    # reference=str
     """
     str: Unique identifier for the transaction
     """
 
-    items=[]
+    # items=[]
     """
     []: Array of items in the 'cart'
     """
 
-    auth_email=str
+    # auth_email=str
     """
     str: The user's email address.
     """
@@ -161,6 +160,8 @@ class Payment:
     def __init__(self, reference, auth_email):
         self.reference = reference
         self.auth_email = auth_email
+        self.items=items=list()
+        self._append_item=items.append
 
     def add(self, title, amount):
         """ Add an item to the 'cart'
@@ -170,7 +171,7 @@ class Payment:
             amount (float): The cost of the item
         """
         # TODO: Validate
-        self.items.append([title, amount])
+        self._append_item([title, amount])
         return self
 
     def total(self):
@@ -179,10 +180,7 @@ class Payment:
         Returns:
             float: The total
         """
-        total = 0.0
-        for item in self.items:
-            total += float(item[1])
-        return total
+        return sum(map(itemgetter(1), self.items))
 
     def info(self):
         """Generate text which represents the items in cart
@@ -190,10 +188,7 @@ class Payment:
         Returns:
             str: The text representation of the cart
         """
-        out = ""
-        for item in self.items:
-            out += (item[0] + ", ")
-        return out
+        return ", ".join(map(itemgetter(0), self.items))
 
 
 class Paynow:
@@ -223,22 +218,22 @@ class Paynow:
     str: Transaction initation url (constant)
     """
 
-    integration_id=str
+    # integration_id=str
     """
     str: Merchant's integration id
     """
 
-    integration_key=str
+    # integration_key=str
     """
     str: Merchant's integration key
     """
 
-    return_url = ""
+    # return_url = ""
     """
     str: Merchant's return url
     """
 
-    result_url = ""
+    # result_url = ""
     """
     str: Merchant's result url
     """
