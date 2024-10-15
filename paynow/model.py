@@ -161,6 +161,7 @@ class Payment:
     def __init__(self, reference, auth_email):
         self.reference = reference
         self.auth_email = auth_email
+        self.items = []
 
     def add(self, title, amount):
         """ Add an item to the 'cart'
